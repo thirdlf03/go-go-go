@@ -12,7 +12,9 @@ package myapp;
 service GreetingService {
 	// サービスが持つメソッドの定義
 	rpc Hello (HelloRequest) returns (HelloResponse);
-	rpc HelloServerStream (HelloRequest) returns (stream HelloRequest);
+	rpc HelloServerStream (HelloRequest) returns (stream HelloResponse);
+	rpc HelloClientStream (stream HelloRequest) returns (HelloResponse);
+	rpc HelloBiStreams (stream HelloRequest) returns (stream HelloResponse);
 }
 
 // 型の定義

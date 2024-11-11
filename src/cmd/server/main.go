@@ -3,26 +3,41 @@ package main
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
-	hellopb "mygrpc/pkg/grpc"
 	"net"
 	"errors"
 	"io"
 	"os"
 	"os/signal"
 	"time"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/reflection"
+	// "cmd/server/unaryInterceptor"
+	hellopb "mygrpc/pkg/grpc"
 )
+
+func myUnaryServerInterceptor1(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
+	log.Println("[pre] my unary server interceptor 1", info.FullMethod)
+	res, err := handler(ctx, req)
+	log.Println("[post] my unary server interceptor 1")
+	return res, err
+}
 
 type myServer struct {
 	hellopb.UnimplementedGreetingServiceServer
 }
 
 func (s *myServer) Hello(ctx context.Context, req *hellopb.HelloRequest) (*hellopb.HelloResponse, error) {
-	return &hellopb.HelloResponse{
-		Message: fmt.Sprintf("Hello %s", req.GetName()),
-	}, nil
+	stat := status.New(codes.Unknown, "unknown error")
+	stat, _ = stat.WithDetails(&errdetails.DebugInfo{
+		Detail: "かわいい猫ちゃん",
+	})
+	err := stat.Err()
+
+	return &hellopb.HelloResponse{Message: fmt.Sprintf("Hello, %s!", req.GetName()),}, err
 }
 
 func (s *myServer) HelloServerStream(req *hellopb.HelloRequest, stream hellopb.GreetingService_HelloServerStreamServer) error {
@@ -85,7 +100,9 @@ func main() {
 		panic(err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(myUnaryServerInterceptor1),
+	)
 
 	hellopb.RegisterGreetingServiceServer(s, NewMyServer())
 

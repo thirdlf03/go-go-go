@@ -15,16 +15,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/reflection"
-	// "cmd/server/unaryInterceptor"
 	hellopb "mygrpc/pkg/grpc"
 )
 
-func myUnaryServerInterceptor1(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error){
-	log.Println("[pre] my unary server interceptor 1", info.FullMethod)
-	res, err := handler(ctx, req)
-	log.Println("[post] my unary server interceptor 1")
-	return res, err
-}
 
 type myServer struct {
 	hellopb.UnimplementedGreetingServiceServer
@@ -39,6 +32,7 @@ func (s *myServer) Hello(ctx context.Context, req *hellopb.HelloRequest) (*hello
 
 	return &hellopb.HelloResponse{Message: fmt.Sprintf("Hello, %s!", req.GetName()),}, err
 }
+
 
 func (s *myServer) HelloServerStream(req *hellopb.HelloRequest, stream hellopb.GreetingService_HelloServerStreamServer) error {
     resCount := 5
@@ -101,7 +95,7 @@ func main() {
 	}
 
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(myUnaryServerInterceptor1),
+		grpc.StreamInterceptor(myStreamServerInterceptor1),
 	)
 
 	hellopb.RegisterGreetingServiceServer(s, NewMyServer())

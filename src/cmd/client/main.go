@@ -29,6 +29,8 @@ func main() {
 
 	conn, err := grpc.Dial(
 		address,
+		grpc.WithStreamInterceptor(myStreamClientInteceptor1),
+
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	)

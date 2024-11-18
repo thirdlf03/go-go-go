@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/metadata"
 	hellopb "mygrpc/pkg/grpc"
 )
 
@@ -29,6 +30,19 @@ func (s *myServer) Hello(ctx context.Context, req *hellopb.HelloRequest) (*hello
 		Detail: "かわいい猫ちゃん",
 	})
 	err := stat.Err()
+
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		log.Println(md)
+	}
+	headerMD := metadata.New(map[string]string{"type": "unary", "from": "server", "in": "header", "kawaii": "neko"})
+	if err := grpc.SetHeader(ctx, headerMD); err != nil {
+		return nil, err
+	}
+	
+	trailer := metadata.New(map[string]string{"type": "unary", "from": "server", "in": "trailer", "kawaii": "neko"})
+	if err := grpc.SetTrailer(ctx, trailer); err != nil {
+		return nil, err
+	}
 
 	return &hellopb.HelloResponse{Message: fmt.Sprintf("Hello, %s!", req.GetName()),}, err
 }
@@ -65,6 +79,18 @@ func (s *myServer) HelloClientStream(stream hellopb.GreetingService_HelloClientS
 }
 
 func (s *myServer) HelloBiStreams(stream hellopb.GreetingService_HelloBiStreamsServer) error {
+	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
+		log.Println(md)
+	}
+	headerMD := metadata.New(map[string]string{"type": "bistream", "from": "server", "in": "header", "kawaii": "neko"})
+	
+	if err := stream.SetHeader(headerMD); err != nil {
+		return err
+	}
+
+	trailerMD := metadata.New(map[string]string{"type": "bistream", "from": "server", "in": "trailer", "kawaii": "neko"})
+	stream.SetTrailer(trailerMD)
+
 	for {
 		req, err := stream.Recv()
 		if errors.Is(err, io.EOF) {

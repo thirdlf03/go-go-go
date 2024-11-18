@@ -1,0 +1,65 @@
+schema @transport(subgraph: "grpc", kind: "grpc", location: "localhost:8080", options: {requestTimeout: 200000}) {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+directive @grpcMethod(subgraph: String, rootJsonName: String, objPath: String, methodName: String, responseStream: Boolean) on FIELD_DEFINITION
+
+directive @grpcConnectivityState(subgraph: String, rootJsonName: String, objPath: String) on FIELD_DEFINITION
+
+directive @grpcRootJson(subgraph: String, name: String, rootJson: ObjMap, loadOptions: ObjMap) repeatable on OBJECT
+
+"""
+Directs the executor to stream plural fields when the `if` argument is true or undefined.
+"""
+directive @stream(
+  """Stream when true or undefined."""
+  if: Boolean! = true
+  """Unique name"""
+  label: String
+  """Number of items to return immediately"""
+  initialCount: Int = 0
+) on FIELD
+
+directive @transport(subgraph: String, kind: String, location: String, options: TransportOptions) repeatable on SCHEMA
+
+type Query @grpcRootJson(subgraph: "grpc", name: "Root0", rootJson: "{\"options\":{\"syntax\":\"proto3\",\"go_package\":\"pkg/grpc\"},\"nested\":{\"myapp\":{\"nested\":{\"GreetingService\":{\"methods\":{\"Hello\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"comment\":\"サービスが持つメソッドの定義\"},\"HelloServerStream\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null},\"HelloClientStream\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"comment\":null},\"HelloBiStreams\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null}},\"comment\":\"サービスの定義\"},\"HelloRequest\":{\"fields\":{\"name\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":\"型の定義\"},\"HelloResponse\":{\"fields\":{\"message\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":null}}}}}") {
+  myapp_GreetingService_connectivityState(tryToConnect: Boolean): ConnectivityState @grpcConnectivityState(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService")
+}
+
+enum ConnectivityState {
+  IDLE
+  CONNECTING
+  READY
+  TRANSIENT_FAILURE
+  SHUTDOWN
+}
+
+type Mutation {
+  """サービスが持つメソッドの定義"""
+  myapp_GreetingService_Hello(input: myapp__HelloRequest_Input): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "Hello", responseStream: false)
+  myapp_GreetingService_HelloServerStream(input: myapp__HelloRequest_Input): [myapp__HelloResponse] @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloServerStream", responseStream: true)
+  myapp_GreetingService_HelloClientStream(input: File): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloClientStream", responseStream: false)
+  myapp_GreetingService_HelloBiStreams(input: File): [myapp__HelloResponse] @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloBiStreams", responseStream: true)
+}
+
+type myapp__HelloResponse {
+  message: String
+}
+
+"""型の定義"""
+input myapp__HelloRequest_Input {
+  name: String
+}
+
+scalar File
+
+type Subscription {
+  myapp_GreetingService_HelloServerStream(input: myapp__HelloRequest_Input): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloServerStream", responseStream: true)
+  myapp_GreetingService_HelloBiStreams(input: File): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloBiStreams", responseStream: true)
+}
+
+scalar ObjMap
+
+scalar TransportOptions

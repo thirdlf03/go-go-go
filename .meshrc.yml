@@ -1,0 +1,6 @@
+sources:
+  - name: MyGrpcApi
+    handler:
+      grpc:
+        endpoint: localhost:8080
+        source: /workspaces/go-go-go/src/api/hello.proto

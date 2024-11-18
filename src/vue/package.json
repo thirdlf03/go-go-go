@@ -1,0 +1,23 @@
+{
+  "name": "vue",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@protobuf-ts/grpcweb-transport": "^2.9.4",
+    "@protobuf-ts/plugin": "^2.9.4",
+    "google-protobuf": "^3.21.4",
+    "grpc-web": "^1.5.0",
+    "vue": "^3.5.12"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "vite": "^5.4.10",
+    "vite-plugin-vue-devtools": "^7.5.4"
+  }
+}

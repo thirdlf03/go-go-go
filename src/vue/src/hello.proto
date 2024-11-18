@@ -1,0 +1,27 @@
+// protoのバージョンの宣言
+syntax = "proto3";
+
+// protoファイルから自動生成させるGoのコードの置き先
+
+option go_package = "pkg/grpc";
+
+// packageの宣言
+package myapp;
+
+// サービスの定義
+service GreetingService {
+	// サービスが持つメソッドの定義
+	rpc Hello (HelloRequest) returns (HelloResponse);
+	rpc HelloServerStream (HelloRequest) returns (stream HelloResponse);
+	rpc HelloClientStream (stream HelloRequest) returns (HelloResponse);
+	rpc HelloBiStreams (stream HelloRequest) returns (stream HelloResponse);
+}
+
+// 型の定義
+message HelloRequest {
+	string name = 1;
+}
+
+message HelloResponse {
+	string message = 1;
+}

@@ -1,0 +1,3 @@
+node_modules
+/src/node_modules
+/src/vue/node_modules

@@ -66,8 +66,8 @@ final class User: Model, Content, @unchecked Sendable {
 }
 
 struct LoginUser: Content{
-    var password: String
     var email: String
+    var password: String
     
     init(email: String, password: String){
         self.email = email
@@ -110,6 +110,16 @@ struct TestPayload: JWTPayload{
 }
 
 func routes(_ app: Application) throws {
+    app.get("check") { req async throws -> HTTPStatus in
+        do {
+            let payload = try await req.jwt.verify(as: TestPayload.self)
+            return .ok
+        } catch {
+            req.logger.error("JWT認証失敗: \(error.localizedDescription)")
+            throw Abort(.unauthorized, reason: "JWTの認証に失敗しました")
+        }
+    }
+    
     app.get("login") { req async throws -> Response in
         let request = try req.content.decode(LoginUser.self)
         guard let user = try await User.query(on: req.db).filter(\.$email == request.email).first() else {
@@ -154,12 +164,6 @@ func routes(_ app: Application) throws {
             expiration: .init(value: .distantFuture)
         )
         return try await Response(token: req.jwt.sign(payload))
-    }
-    
-    app.get("me") { req async throws -> HTTPStatus in
-        let payload = try await req.jwt.verify(as: TestPayload.self)
-        print(payload)
-        return .ok
     }
 }
 

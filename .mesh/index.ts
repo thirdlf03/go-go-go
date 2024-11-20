@@ -6,7 +6,8 @@ import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
-import type { MyGrpcApiTypes } from './sources/MyGrpcApi/types';
+import type { GrpcApiTypes } from './sources/GrpcApi/types';
+import type { VaporApiTypes } from './sources/VaporApi/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -24,15 +25,32 @@ export type Scalars = {
   String: { input: string; output: string; }
   /** The `Boolean` scalar type represents `true` or `false`. */
   Boolean: { input: boolean; output: boolean; }
+  /** The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. */
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** Define the GetTodosRequest message */
+  myapp__GetTodosRequest_Input: { input: any; output: any; }
   File: { input: any; output: any; }
   ObjMap: { input: any; output: any; }
   TransportOptions: { input: any; output: any; }
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any; }
+  /** A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address. */
+  EmailAddress: { input: string; output: string; }
+  /** A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier. */
+  UUID: { input: string; output: string; }
 };
 
 export type Query = {
+  myapp_GreetingService_GetTodos?: Maybe<myapp__GetTodosResponse>;
   myapp_GreetingService_connectivityState?: Maybe<ConnectivityState>;
+  /** Verify the validity of the provided JWT token. */
+  check?: Maybe<Scalars['JSON']['output']>;
+};
+
+
+export type Querymyapp_GreetingService_GetTodosArgs = {
+  input?: InputMaybe<Scalars['myapp__GetTodosRequest_Input']['input']>;
 };
 
 
@@ -40,19 +58,19 @@ export type Querymyapp_GreetingService_connectivityStateArgs = {
   tryToConnect?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type ConnectivityState =
-  | 'IDLE'
-  | 'CONNECTING'
-  | 'READY'
-  | 'TRANSIENT_FAILURE'
-  | 'SHUTDOWN';
-
 export type Mutation = {
   /** サービスが持つメソッドの定義 */
   myapp_GreetingService_Hello?: Maybe<myapp__HelloResponse>;
   myapp_GreetingService_HelloServerStream?: Maybe<Array<Maybe<myapp__HelloResponse>>>;
   myapp_GreetingService_HelloClientStream?: Maybe<myapp__HelloResponse>;
   myapp_GreetingService_HelloBiStreams?: Maybe<Array<Maybe<myapp__HelloResponse>>>;
+  myapp_GreetingService_CreateTodo?: Maybe<myapp__CreateTodoResponse>;
+  myapp_GreetingService_UpdateTodo?: Maybe<myapp__UpdateTodoResponse>;
+  myapp_GreetingService_DeleteTodo?: Maybe<myapp__DeleteTodoResponse>;
+  /** Authenticate a user and return a JWT token. */
+  post_login?: Maybe<Response>;
+  /** Register a new user and return a JWT token. */
+  post_register?: Maybe<Response>;
 };
 
 
@@ -75,13 +93,29 @@ export type Mutationmyapp_GreetingService_HelloBiStreamsArgs = {
   input?: InputMaybe<Scalars['File']['input']>;
 };
 
-export type myapp__HelloResponse = {
-  message?: Maybe<Scalars['String']['output']>;
+
+export type Mutationmyapp_GreetingService_CreateTodoArgs = {
+  input?: InputMaybe<myapp__CreateTodoRequest_Input>;
 };
 
-/** 型の定義 */
-export type myapp__HelloRequest_Input = {
-  name?: InputMaybe<Scalars['String']['input']>;
+
+export type Mutationmyapp_GreetingService_UpdateTodoArgs = {
+  input?: InputMaybe<myapp__UpdateTodoRequest_Input>;
+};
+
+
+export type Mutationmyapp_GreetingService_DeleteTodoArgs = {
+  input?: InputMaybe<myapp__DeleteTodoRequest_Input>;
+};
+
+
+export type Mutationpost_loginArgs = {
+  input?: InputMaybe<LoginUser_Input>;
+};
+
+
+export type Mutationpost_registerArgs = {
+  input?: InputMaybe<User_Input>;
 };
 
 export type Subscription = {
@@ -98,6 +132,102 @@ export type Subscriptionmyapp_GreetingService_HelloServerStreamArgs = {
 export type Subscriptionmyapp_GreetingService_HelloBiStreamsArgs = {
   input?: InputMaybe<Scalars['File']['input']>;
 };
+
+/** Define the GetTodosResponse message */
+export type myapp__GetTodosResponse = {
+  todos?: Maybe<Array<Maybe<myapp__Todo>>>;
+};
+
+export type myapp__Todo = {
+  id?: Maybe<Scalars['Int']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  completed?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ConnectivityState =
+  | 'IDLE'
+  | 'CONNECTING'
+  | 'READY'
+  | 'TRANSIENT_FAILURE'
+  | 'SHUTDOWN';
+
+export type myapp__HelloResponse = {
+  message?: Maybe<Scalars['String']['output']>;
+};
+
+/** 型の定義 */
+export type myapp__HelloRequest_Input = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Define the CreateTodoResponse message */
+export type myapp__CreateTodoResponse = {
+  todo?: Maybe<myapp__Todo>;
+};
+
+/** Define the CreateTodoRequest message */
+export type myapp__CreateTodoRequest_Input = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Define the UpdateTodoResponse message */
+export type myapp__UpdateTodoResponse = {
+  todo?: Maybe<myapp__Todo>;
+};
+
+/** Define the UpdateTodoRequest message */
+export type myapp__UpdateTodoRequest_Input = {
+  id?: InputMaybe<Scalars['Int']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  completed?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Define the DeleteTodoResponse message */
+export type myapp__DeleteTodoResponse = {
+  success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+/** Define the DeleteTodoRequest message */
+export type myapp__DeleteTodoRequest_Input = {
+  id?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type Response = {
+  /** JWT token issued to the user. */
+  token?: Maybe<Scalars['String']['output']>;
+};
+
+export type LoginUser_Input = {
+  /** Email address of the user. */
+  email: Scalars['EmailAddress']['input'];
+  /** Plain text password of the user. */
+  password: Scalars['String']['input'];
+};
+
+export type User_Input = {
+  /** Unique identifier for the user. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Email address of the user. */
+  email: Scalars['EmailAddress']['input'];
+  /** Name of the user. */
+  name: Scalars['String']['input'];
+  /** Hashed password of the user. */
+  password: Scalars['String']['input'];
+};
+
+export type HTTPMethod =
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'CONNECT'
+  | 'OPTIONS'
+  | 'TRACE'
+  | 'PATCH';
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -186,32 +316,63 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
-  ConnectivityState: ConnectivityState;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
-  myapp__HelloResponse: ResolverTypeWrapper<myapp__HelloResponse>;
+  Subscription: ResolverTypeWrapper<{}>;
+  myapp__GetTodosResponse: ResolverTypeWrapper<myapp__GetTodosResponse>;
+  myapp__Todo: ResolverTypeWrapper<myapp__Todo>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  myapp__GetTodosRequest_Input: ResolverTypeWrapper<Scalars['myapp__GetTodosRequest_Input']['output']>;
+  ConnectivityState: ConnectivityState;
+  myapp__HelloResponse: ResolverTypeWrapper<myapp__HelloResponse>;
   myapp__HelloRequest_Input: myapp__HelloRequest_Input;
   File: ResolverTypeWrapper<Scalars['File']['output']>;
-  Subscription: ResolverTypeWrapper<{}>;
+  myapp__CreateTodoResponse: ResolverTypeWrapper<myapp__CreateTodoResponse>;
+  myapp__CreateTodoRequest_Input: myapp__CreateTodoRequest_Input;
+  myapp__UpdateTodoResponse: ResolverTypeWrapper<myapp__UpdateTodoResponse>;
+  myapp__UpdateTodoRequest_Input: myapp__UpdateTodoRequest_Input;
+  myapp__DeleteTodoResponse: ResolverTypeWrapper<myapp__DeleteTodoResponse>;
+  myapp__DeleteTodoRequest_Input: myapp__DeleteTodoRequest_Input;
   ObjMap: ResolverTypeWrapper<Scalars['ObjMap']['output']>;
-  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   TransportOptions: ResolverTypeWrapper<Scalars['TransportOptions']['output']>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
+  Response: ResolverTypeWrapper<Response>;
+  LoginUser_Input: LoginUser_Input;
+  EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']['output']>;
+  User_Input: User_Input;
+  UUID: ResolverTypeWrapper<Scalars['UUID']['output']>;
+  HTTPMethod: HTTPMethod;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
-  Boolean: Scalars['Boolean']['output'];
   Mutation: {};
-  myapp__HelloResponse: myapp__HelloResponse;
+  Subscription: {};
+  myapp__GetTodosResponse: myapp__GetTodosResponse;
+  myapp__Todo: myapp__Todo;
+  Int: Scalars['Int']['output'];
   String: Scalars['String']['output'];
+  Boolean: Scalars['Boolean']['output'];
+  myapp__GetTodosRequest_Input: Scalars['myapp__GetTodosRequest_Input']['output'];
+  myapp__HelloResponse: myapp__HelloResponse;
   myapp__HelloRequest_Input: myapp__HelloRequest_Input;
   File: Scalars['File']['output'];
-  Subscription: {};
+  myapp__CreateTodoResponse: myapp__CreateTodoResponse;
+  myapp__CreateTodoRequest_Input: myapp__CreateTodoRequest_Input;
+  myapp__UpdateTodoResponse: myapp__UpdateTodoResponse;
+  myapp__UpdateTodoRequest_Input: myapp__UpdateTodoRequest_Input;
+  myapp__DeleteTodoResponse: myapp__DeleteTodoResponse;
+  myapp__DeleteTodoRequest_Input: myapp__DeleteTodoRequest_Input;
   ObjMap: Scalars['ObjMap']['output'];
-  Int: Scalars['Int']['output'];
   TransportOptions: Scalars['TransportOptions']['output'];
+  JSON: Scalars['JSON']['output'];
+  Response: Response;
+  LoginUser_Input: LoginUser_Input;
+  EmailAddress: Scalars['EmailAddress']['output'];
+  User_Input: User_Input;
+  UUID: Scalars['UUID']['output'];
 }>;
 
 export type grpcMethodDirectiveArgs = {
@@ -254,22 +415,67 @@ export type transportDirectiveArgs = {
   kind?: Maybe<Scalars['String']['input']>;
   location?: Maybe<Scalars['String']['input']>;
   options?: Maybe<Scalars['TransportOptions']['input']>;
+  headers?: Maybe<Array<Maybe<Array<Maybe<Scalars['String']['input']>>>>>;
+  queryStringOptions?: Maybe<Scalars['ObjMap']['input']>;
+  queryParams?: Maybe<Array<Maybe<Array<Maybe<Scalars['String']['input']>>>>>;
 };
 
 export type transportDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = transportDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  myapp_GreetingService_connectivityState?: Resolver<Maybe<ResolversTypes['ConnectivityState']>, ParentType, ContextType, Partial<Querymyapp_GreetingService_connectivityStateArgs>>;
-}>;
+export type httpOperationDirectiveArgs = {
+  subgraph?: Maybe<Scalars['String']['input']>;
+  path?: Maybe<Scalars['String']['input']>;
+  operationSpecificHeaders?: Maybe<Array<Maybe<Array<Maybe<Scalars['String']['input']>>>>>;
+  httpMethod?: Maybe<HTTPMethod>;
+  isBinary?: Maybe<Scalars['Boolean']['input']>;
+  requestBaseBody?: Maybe<Scalars['ObjMap']['input']>;
+  queryParamArgMap?: Maybe<Scalars['ObjMap']['input']>;
+  queryStringOptionsByParam?: Maybe<Scalars['ObjMap']['input']>;
+  jsonApiFields?: Maybe<Scalars['Boolean']['input']>;
+  queryStringOptions?: Maybe<Scalars['ObjMap']['input']>;
+};
 
-export type ConnectivityStateResolvers = { IDLE: 0, CONNECTING: 1, READY: 2, TRANSIENT_FAILURE: 3, SHUTDOWN: 4 };
+export type httpOperationDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = httpOperationDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  myapp_GreetingService_GetTodos?: Resolver<Maybe<ResolversTypes['myapp__GetTodosResponse']>, ParentType, ContextType, Partial<Querymyapp_GreetingService_GetTodosArgs>>;
+  myapp_GreetingService_connectivityState?: Resolver<Maybe<ResolversTypes['ConnectivityState']>, ParentType, ContextType, Partial<Querymyapp_GreetingService_connectivityStateArgs>>;
+  check?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+}>;
 
 export type MutationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   myapp_GreetingService_Hello?: Resolver<Maybe<ResolversTypes['myapp__HelloResponse']>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_HelloArgs>>;
   myapp_GreetingService_HelloServerStream?: Resolver<Maybe<Array<Maybe<ResolversTypes['myapp__HelloResponse']>>>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_HelloServerStreamArgs>>;
   myapp_GreetingService_HelloClientStream?: Resolver<Maybe<ResolversTypes['myapp__HelloResponse']>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_HelloClientStreamArgs>>;
   myapp_GreetingService_HelloBiStreams?: Resolver<Maybe<Array<Maybe<ResolversTypes['myapp__HelloResponse']>>>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_HelloBiStreamsArgs>>;
+  myapp_GreetingService_CreateTodo?: Resolver<Maybe<ResolversTypes['myapp__CreateTodoResponse']>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_CreateTodoArgs>>;
+  myapp_GreetingService_UpdateTodo?: Resolver<Maybe<ResolversTypes['myapp__UpdateTodoResponse']>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_UpdateTodoArgs>>;
+  myapp_GreetingService_DeleteTodo?: Resolver<Maybe<ResolversTypes['myapp__DeleteTodoResponse']>, ParentType, ContextType, Partial<Mutationmyapp_GreetingService_DeleteTodoArgs>>;
+  post_login?: Resolver<Maybe<ResolversTypes['Response']>, ParentType, ContextType, Partial<Mutationpost_loginArgs>>;
+  post_register?: Resolver<Maybe<ResolversTypes['Response']>, ParentType, ContextType, Partial<Mutationpost_registerArgs>>;
 }>;
+
+export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+  myapp_GreetingService_HelloServerStream?: SubscriptionResolver<Maybe<ResolversTypes['myapp__HelloResponse']>, "myapp_GreetingService_HelloServerStream", ParentType, ContextType, Partial<Subscriptionmyapp_GreetingService_HelloServerStreamArgs>>;
+  myapp_GreetingService_HelloBiStreams?: SubscriptionResolver<Maybe<ResolversTypes['myapp__HelloResponse']>, "myapp_GreetingService_HelloBiStreams", ParentType, ContextType, Partial<Subscriptionmyapp_GreetingService_HelloBiStreamsArgs>>;
+}>;
+
+export type myapp__GetTodosResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__GetTodosResponse'] = ResolversParentTypes['myapp__GetTodosResponse']> = ResolversObject<{
+  todos?: Resolver<Maybe<Array<Maybe<ResolversTypes['myapp__Todo']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type myapp__TodoResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__Todo'] = ResolversParentTypes['myapp__Todo']> = ResolversObject<{
+  id?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  completed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export interface myapp__GetTodosRequest_InputScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['myapp__GetTodosRequest_Input'], any> {
+  name: 'myapp__GetTodosRequest_Input';
+}
 
 export type myapp__HelloResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__HelloResponse'] = ResolversParentTypes['myapp__HelloResponse']> = ResolversObject<{
   message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -280,9 +486,19 @@ export interface FileScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'File';
 }
 
-export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  myapp_GreetingService_HelloServerStream?: SubscriptionResolver<Maybe<ResolversTypes['myapp__HelloResponse']>, "myapp_GreetingService_HelloServerStream", ParentType, ContextType, Partial<Subscriptionmyapp_GreetingService_HelloServerStreamArgs>>;
-  myapp_GreetingService_HelloBiStreams?: SubscriptionResolver<Maybe<ResolversTypes['myapp__HelloResponse']>, "myapp_GreetingService_HelloBiStreams", ParentType, ContextType, Partial<Subscriptionmyapp_GreetingService_HelloBiStreamsArgs>>;
+export type myapp__CreateTodoResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__CreateTodoResponse'] = ResolversParentTypes['myapp__CreateTodoResponse']> = ResolversObject<{
+  todo?: Resolver<Maybe<ResolversTypes['myapp__Todo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type myapp__UpdateTodoResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__UpdateTodoResponse'] = ResolversParentTypes['myapp__UpdateTodoResponse']> = ResolversObject<{
+  todo?: Resolver<Maybe<ResolversTypes['myapp__Todo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type myapp__DeleteTodoResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['myapp__DeleteTodoResponse'] = ResolversParentTypes['myapp__DeleteTodoResponse']> = ResolversObject<{
+  success?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export interface ObjMapScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['ObjMap'], any> {
@@ -293,15 +509,41 @@ export interface TransportOptionsScalarConfig extends GraphQLScalarTypeConfig<Re
   name: 'TransportOptions';
 }
 
+export interface JSONScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
+export type ResponseResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Response'] = ResolversParentTypes['Response']> = ResolversObject<{
+  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['EmailAddress'], any> {
+  name: 'EmailAddress';
+}
+
+export interface UUIDScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UUID'], any> {
+  name: 'UUID';
+}
+
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
-  ConnectivityState?: ConnectivityStateResolvers;
   Mutation?: MutationResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
+  myapp__GetTodosResponse?: myapp__GetTodosResponseResolvers<ContextType>;
+  myapp__Todo?: myapp__TodoResolvers<ContextType>;
+  myapp__GetTodosRequest_Input?: GraphQLScalarType;
   myapp__HelloResponse?: myapp__HelloResponseResolvers<ContextType>;
   File?: GraphQLScalarType;
-  Subscription?: SubscriptionResolvers<ContextType>;
+  myapp__CreateTodoResponse?: myapp__CreateTodoResponseResolvers<ContextType>;
+  myapp__UpdateTodoResponse?: myapp__UpdateTodoResponseResolvers<ContextType>;
+  myapp__DeleteTodoResponse?: myapp__DeleteTodoResponseResolvers<ContextType>;
   ObjMap?: GraphQLScalarType;
   TransportOptions?: GraphQLScalarType;
+  JSON?: GraphQLScalarType;
+  Response?: ResponseResolvers<ContextType>;
+  EmailAddress?: GraphQLScalarType;
+  UUID?: GraphQLScalarType;
 }>;
 
 export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
@@ -310,9 +552,10 @@ export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
   grpcRootJson?: grpcRootJsonDirectiveResolver<any, any, ContextType>;
   stream?: streamDirectiveResolver<any, any, ContextType>;
   transport?: transportDirectiveResolver<any, any, ContextType>;
+  httpOperation?: httpOperationDirectiveResolver<any, any, ContextType>;
 }>;
 
-export type MeshContext = MyGrpcApiTypes.Context & BaseMeshContext;
+export type MeshContext = GrpcApiTypes.Context & VaporApiTypes.Context & BaseMeshContext;
 
 
 const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/', '..');

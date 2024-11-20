@@ -3,3 +3,4 @@ node_modules
 /src/vue/node_modules
 /hello/.swiftpm
 /hello/.build
+.mesh

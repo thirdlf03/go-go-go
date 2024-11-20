@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: User API
+  version: 1.0.0
+  description: API for managing user authentication.
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /check:
+    get:
+      summary: Verify JWT Token
+      description: Verify the validity of the provided JWT token.
+      responses:
+        '200':
+          description: Token is valid.
+        '401':
+          description: Unauthorized, invalid or expired token.
+      security:
+        - bearerAuth: []
+  /login:
+    post:
+      summary: Login User
+      description: Authenticate a user and return a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUser'
+      responses:
+        '200':
+          description: Successfully authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '401':
+          description: Unauthorized, invalid credentials.
+  /register:
+    post:
+      summary: Register User
+      description: Register a new user and return a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '409':
+          description: Conflict, email or username already exists.
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - email
+        - name
+        - password
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user.
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+        name:
+          type: string
+          description: Name of the user.
+        password:
+          type: string
+          description: Hashed password of the user.
+    LoginUser:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+        password:
+          type: string
+          description: Plain text password of the user.
+    Response:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token issued to the user.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+

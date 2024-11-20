@@ -1,4 +1,4 @@
-schema @transport(subgraph: "grpc", kind: "grpc", location: "localhost:8080", options: {requestTimeout: 200000}) {
+schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
@@ -22,18 +22,15 @@ directive @stream(
   initialCount: Int = 0
 ) on FIELD
 
-directive @transport(subgraph: String, kind: String, location: String, options: TransportOptions) repeatable on SCHEMA
+directive @transport(subgraph: String, kind: String, location: String, options: TransportOptions, headers: [[String]], queryStringOptions: ObjMap, queryParams: [[String]]) repeatable on SCHEMA
 
-type Query @grpcRootJson(subgraph: "grpc", name: "Root0", rootJson: "{\"options\":{\"syntax\":\"proto3\",\"go_package\":\"pkg/grpc\"},\"nested\":{\"myapp\":{\"nested\":{\"GreetingService\":{\"methods\":{\"Hello\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"comment\":\"サービスが持つメソッドの定義\"},\"HelloServerStream\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null},\"HelloClientStream\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"comment\":null},\"HelloBiStreams\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null}},\"comment\":\"サービスの定義\"},\"HelloRequest\":{\"fields\":{\"name\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":\"型の定義\"},\"HelloResponse\":{\"fields\":{\"message\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":null}}}}}") {
+directive @httpOperation(subgraph: String, path: String, operationSpecificHeaders: [[String]], httpMethod: HTTPMethod, isBinary: Boolean, requestBaseBody: ObjMap, queryParamArgMap: ObjMap, queryStringOptionsByParam: ObjMap, jsonApiFields: Boolean, queryStringOptions: ObjMap) on FIELD_DEFINITION
+
+type Query @grpcRootJson(subgraph: "grpc", name: "Root0", rootJson: "{\"options\":{\"syntax\":\"proto3\",\"go_package\":\"pkg/grpc\"},\"nested\":{\"myapp\":{\"nested\":{\"GreetingService\":{\"methods\":{\"Hello\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"comment\":\"サービスが持つメソッドの定義\"},\"HelloServerStream\":{\"requestType\":\"HelloRequest\",\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null},\"HelloClientStream\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"comment\":null},\"HelloBiStreams\":{\"requestType\":\"HelloRequest\",\"requestStream\":true,\"responseType\":\"HelloResponse\",\"responseStream\":true,\"comment\":null},\"CreateTodo\":{\"requestType\":\"CreateTodoRequest\",\"responseType\":\"CreateTodoResponse\",\"comment\":null},\"GetTodos\":{\"requestType\":\"GetTodosRequest\",\"responseType\":\"GetTodosResponse\",\"comment\":null},\"UpdateTodo\":{\"requestType\":\"UpdateTodoRequest\",\"responseType\":\"UpdateTodoResponse\",\"comment\":null},\"DeleteTodo\":{\"requestType\":\"DeleteTodoRequest\",\"responseType\":\"DeleteTodoResponse\",\"comment\":null}},\"comment\":\"サービスの定義\"},\"HelloRequest\":{\"fields\":{\"name\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":\"型の定義\"},\"HelloResponse\":{\"fields\":{\"message\":{\"type\":\"string\",\"id\":1,\"comment\":null}},\"comment\":null},\"Todo\":{\"fields\":{\"id\":{\"type\":\"int32\",\"id\":1,\"comment\":null},\"title\":{\"type\":\"string\",\"id\":2,\"comment\":null},\"description\":{\"type\":\"string\",\"id\":3,\"comment\":null},\"completed\":{\"type\":\"bool\",\"id\":4,\"comment\":null}},\"comment\":null},\"CreateTodoRequest\":{\"fields\":{\"title\":{\"type\":\"string\",\"id\":1,\"comment\":null},\"description\":{\"type\":\"string\",\"id\":2,\"comment\":null}},\"comment\":\"Define the CreateTodoRequest message\"},\"CreateTodoResponse\":{\"fields\":{\"todo\":{\"type\":\"Todo\",\"id\":1,\"comment\":null}},\"comment\":\"Define the CreateTodoResponse message\"},\"GetTodosRequest\":{\"fields\":{},\"comment\":\"Define the GetTodosRequest message\"},\"GetTodosResponse\":{\"fields\":{\"todos\":{\"rule\":\"repeated\",\"type\":\"Todo\",\"id\":1,\"comment\":null}},\"comment\":\"Define the GetTodosResponse message\"},\"UpdateTodoRequest\":{\"fields\":{\"id\":{\"type\":\"int32\",\"id\":1,\"comment\":null},\"title\":{\"type\":\"string\",\"id\":2,\"comment\":null},\"description\":{\"type\":\"string\",\"id\":3,\"comment\":null},\"completed\":{\"type\":\"bool\",\"id\":4,\"comment\":null}},\"comment\":\"Define the UpdateTodoRequest message\"},\"UpdateTodoResponse\":{\"fields\":{\"todo\":{\"type\":\"Todo\",\"id\":1,\"comment\":null}},\"comment\":\"Define the UpdateTodoResponse message\"},\"DeleteTodoRequest\":{\"fields\":{\"id\":{\"type\":\"int32\",\"id\":1,\"comment\":null}},\"comment\":\"Define the DeleteTodoRequest message\"},\"DeleteTodoResponse\":{\"fields\":{\"success\":{\"type\":\"bool\",\"id\":1,\"comment\":null}},\"comment\":\"Define the DeleteTodoResponse message\"}}}}}") {
+  myapp_GreetingService_GetTodos(input: myapp__GetTodosRequest_Input): myapp__GetTodosResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "GetTodos", responseStream: false)
   myapp_GreetingService_connectivityState(tryToConnect: Boolean): ConnectivityState @grpcConnectivityState(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService")
-}
-
-enum ConnectivityState {
-  IDLE
-  CONNECTING
-  READY
-  TRANSIENT_FAILURE
-  SHUTDOWN
+  """Verify the validity of the provided JWT token."""
+  check: JSON @httpOperation(subgraph: "VaporApi", path: "/check", httpMethod: GET)
 }
 
 type Mutation {
@@ -42,6 +39,41 @@ type Mutation {
   myapp_GreetingService_HelloServerStream(input: myapp__HelloRequest_Input): [myapp__HelloResponse] @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloServerStream", responseStream: true)
   myapp_GreetingService_HelloClientStream(input: File): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloClientStream", responseStream: false)
   myapp_GreetingService_HelloBiStreams(input: File): [myapp__HelloResponse] @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloBiStreams", responseStream: true)
+  myapp_GreetingService_CreateTodo(input: myapp__CreateTodoRequest_Input): myapp__CreateTodoResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "CreateTodo", responseStream: false)
+  myapp_GreetingService_UpdateTodo(input: myapp__UpdateTodoRequest_Input): myapp__UpdateTodoResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "UpdateTodo", responseStream: false)
+  myapp_GreetingService_DeleteTodo(input: myapp__DeleteTodoRequest_Input): myapp__DeleteTodoResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "DeleteTodo", responseStream: false)
+  """Authenticate a user and return a JWT token."""
+  post_login(input: LoginUser_Input): Response @httpOperation(subgraph: "VaporApi", path: "/login", operationSpecificHeaders: [["Content-Type", "application/json"], ["accept", "application/json"]], httpMethod: POST)
+  """Register a new user and return a JWT token."""
+  post_register(input: User_Input): Response @httpOperation(subgraph: "VaporApi", path: "/register", operationSpecificHeaders: [["Content-Type", "application/json"], ["accept", "application/json"]], httpMethod: POST)
+}
+
+type Subscription {
+  myapp_GreetingService_HelloServerStream(input: myapp__HelloRequest_Input): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloServerStream", responseStream: true)
+  myapp_GreetingService_HelloBiStreams(input: File): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloBiStreams", responseStream: true)
+}
+
+"""Define the GetTodosResponse message"""
+type myapp__GetTodosResponse {
+  todos: [myapp__Todo]
+}
+
+type myapp__Todo {
+  id: Int
+  title: String
+  description: String
+  completed: Boolean
+}
+
+"""Define the GetTodosRequest message"""
+scalar myapp__GetTodosRequest_Input @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+enum ConnectivityState {
+  IDLE
+  CONNECTING
+  READY
+  TRANSIENT_FAILURE
+  SHUTDOWN
 }
 
 type myapp__HelloResponse {
@@ -55,11 +87,90 @@ input myapp__HelloRequest_Input {
 
 scalar File
 
-type Subscription {
-  myapp_GreetingService_HelloServerStream(input: myapp__HelloRequest_Input): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloServerStream", responseStream: true)
-  myapp_GreetingService_HelloBiStreams(input: File): myapp__HelloResponse @grpcMethod(subgraph: "grpc", rootJsonName: "Root0", objPath: "myapp.GreetingService", methodName: "HelloBiStreams", responseStream: true)
+"""Define the CreateTodoResponse message"""
+type myapp__CreateTodoResponse {
+  todo: myapp__Todo
+}
+
+"""Define the CreateTodoRequest message"""
+input myapp__CreateTodoRequest_Input {
+  title: String
+  description: String
+}
+
+"""Define the UpdateTodoResponse message"""
+type myapp__UpdateTodoResponse {
+  todo: myapp__Todo
+}
+
+"""Define the UpdateTodoRequest message"""
+input myapp__UpdateTodoRequest_Input {
+  id: Int
+  title: String
+  description: String
+  completed: Boolean
+}
+
+"""Define the DeleteTodoResponse message"""
+type myapp__DeleteTodoResponse {
+  success: Boolean
+}
+
+"""Define the DeleteTodoRequest message"""
+input myapp__DeleteTodoRequest_Input {
+  id: Int
 }
 
 scalar ObjMap
 
 scalar TransportOptions
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+type Response {
+  """JWT token issued to the user."""
+  token: String
+}
+
+input LoginUser_Input {
+  """Email address of the user."""
+  email: EmailAddress!
+  """Plain text password of the user."""
+  password: String!
+}
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+input User_Input {
+  """Unique identifier for the user."""
+  id: UUID
+  """Email address of the user."""
+  email: EmailAddress!
+  """Name of the user."""
+  name: String!
+  """Hashed password of the user."""
+  password: String!
+}
+
+"""
+A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+"""
+scalar UUID
+
+enum HTTPMethod {
+  GET
+  HEAD
+  POST
+  PUT
+  DELETE
+  CONNECT
+  OPTIONS
+  TRACE
+  PATCH
+}

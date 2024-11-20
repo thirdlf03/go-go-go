@@ -1,6 +1,12 @@
 sources:
-  - name: MyGrpcApi
+  - name: GrpcApi
     handler:
       grpc:
+        endpoint: localhost:8081
+        source: ./src/api/hello.proto
+  - name: VaporApi
+    handler:
+      openapi:
         endpoint: localhost:8080
-        source: /workspaces/go-go-go/src/api/hello.proto
+        source: ./hello/open.yaml
+

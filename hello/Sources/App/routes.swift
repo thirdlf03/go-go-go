@@ -2,43 +2,6 @@ import Vapor
 import Fluent
 import JWT
 
-final class Galaxy: Model, Content, @unchecked Sendable {
-    // テーブルまたはコレクションの名前
-    static let schema = "galaxies"
-
-    // Galaxy の一意の識別子
-    @ID(key: .id)
-    var id: UUID?
-
-    // 銀河の名前
-    @Field(key: "name")
-    var name: String
-
-    // 空の Galaxy インスタンスを作成
-    init() { }
-
-    // すべてのプロパティが設定された新しい Galaxy インスタンスを作成
-    init(id: UUID? = nil, name: String) {
-        self.id = id
-        self.name = name
-    }
-}
-
-struct CreateGalaxy: AsyncMigration {
-    // Galaxy モデルを格納するためのデータベースの準備
-    func prepare(on database: Database) async throws {
-        try await database.schema("galaxies")
-            .id()
-            .field("name", .string)
-            .create()
-    }
-
-    // 必要に応じて、prepare メソッドで行った変更を元に戻します
-    func revert(on database: Database) async throws {
-        try await database.schema("galaxies").delete()
-    }
-}
-
 final class User: Model, Content, @unchecked Sendable {
     static let schema = "users"
 
@@ -120,7 +83,7 @@ func routes(_ app: Application) throws {
         }
     }
     
-    app.get("login") { req async throws -> Response in
+    app.post("login") { req async throws -> Response in
         let request = try req.content.decode(LoginUser.self)
         guard let user = try await User.query(on: req.db).filter(\.$email == request.email).first() else {
             throw Abort(.unauthorized, reason: "ユーザ情報が違います")

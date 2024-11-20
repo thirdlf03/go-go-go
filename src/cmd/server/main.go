@@ -108,7 +108,7 @@ func NewMyServer() *myServer {
 }
 
 func main() {
-	port := 8080
+	port := 8081
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		panic(err)

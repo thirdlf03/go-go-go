@@ -4,9 +4,13 @@ sources:
       grpc:
         endpoint: localhost:8081
         source: ./src/api/hello.proto
+        metaData:
+          Authorization: 'Bearer {context.headers["token"]}'
+          someStaticValue: 'MyStaticValue'
   - name: VaporApi
     handler:
       openapi:
-        endpoint: localhost:8080
+        endpoint: http://localhost:8080
         source: ./hello/open.yaml
-
+        operationHeaders:
+          Authorization: 'Bearer {context.headers["token"]}'

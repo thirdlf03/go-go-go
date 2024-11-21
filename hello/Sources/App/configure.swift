@@ -12,7 +12,7 @@ public func configure(_ app: Application) async throws {
     tls.certificateVerification = .none
 
     app.databases.use(.mysql(
-        hostname: "localhost",
+        hostname: "127.0.0.1",
         username: "root",
         password: "password",
         database: "mydb",

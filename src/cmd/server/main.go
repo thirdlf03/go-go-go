@@ -7,8 +7,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"io"
 	"log"
+	"mygrpc/gen/query"
 	hellopb "mygrpc/pkg/grpc"
 	"net"
 	"os"
@@ -20,7 +23,32 @@ type myServer struct {
 	hellopb.UnimplementedGreetingServiceServer
 }
 
+func connectDB() (*gorm.DB, error) {
+	dsn := "root:password@tcp(127.0.0.1:3306)/mydb?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
 func (s *myServer) Hello(ctx context.Context, req *hellopb.HelloRequest) (*hellopb.HelloResponse, error) {
+	userID, ok := ctx.Value("userID").(string)
+	if !ok {
+		return nil, fmt.Errorf("userID not found")
+	}
+	log.Println("userID: ", userID)
+	db, err := connectDB()
+	if err != nil {
+		return nil, err
+	}
+	query.SetDefault(db)
+	user, err := query.User.First()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("First user: ID: %x, Email: %s, Name: %s, Password: %s\n", user.ID, *user.Email, *user.Name, *user.Password)
+
 	//stat := status.New(codes.Unknown, "unknown error")
 	//stat, _ = stat.WithDetails(&errdetails.DebugInfo{
 	//	Detail: "かわいい猫ちゃん",
@@ -115,7 +143,7 @@ func main() {
 	}
 
 	s := grpc.NewServer(
-		grpc.StreamInterceptor(myStreamServerInterceptor1),
+		grpc.UnaryInterceptor(myUnaryServerInterceptor1),
 	)
 
 	hellopb.RegisterGreetingServiceServer(s, NewMyServer())

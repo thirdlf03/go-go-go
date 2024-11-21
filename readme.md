@@ -8,6 +8,7 @@ protoc -I=./api ./api/hello.proto --js_out=import_style=commonjs:./client/genera
 go get -u gorm.io/gorm  
 go get -u gorm.io/driver/mysql  
 go get -u gorm.io/gen
+go get -u github.com/golang-jwt/jwt/v5
 
 docker run --name mysql -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql:latest  
 
